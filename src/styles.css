@@ -3,28 +3,6 @@
   --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   --radius: 12px;
   --accent: #00c968;
-}
-
-:root[data-theme='light'] {
-  --ascii-0: #00a857;
-  --ascii-1: #0b87c9;
-  --ascii-2: #8055f0;
-  --ascii-3: #b8b8b8;
-  --bg: #ffffff;
-  --fg: #0a0a0a;
-  --muted-fg: #6b6b6b;
-  --border: #e6e6e6;
-  --card: #ffffff;
-  --card-hover-border: #0a0a0a;
-  --secondary: #f5f5f5;
-  --pill-bg: rgba(10, 10, 10, 0.05);
-  --pill-border: rgba(10, 10, 10, 0.1);
-  --header-bg: rgba(255, 255, 255, 0.8);
-  --dot: #a3a3a3;
-  --accent-glow: #00b85f;
-}
-
-:root[data-theme='dark'] {
   --ascii-0: #00ff88;
   --ascii-1: #38cfff;
   --ascii-2: #9a8cff;
@@ -59,7 +37,6 @@ body {
   font-family: var(--font-sans);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  transition: background 0.25s ease, color 0.25s ease;
 }
 
 .mono {
@@ -150,26 +127,6 @@ a {
   height: 2px;
   border-radius: 2px;
   background: var(--accent-glow);
-}
-
-.theme-btn {
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  background: transparent;
-  color: var(--muted-fg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-}
-
-.theme-btn:hover {
-  color: var(--fg);
-  border-color: var(--fg);
-  transform: translateY(-1px);
 }
 
 /* ---------- hero ---------- */

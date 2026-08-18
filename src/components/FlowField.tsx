@@ -3,9 +3,8 @@ import { useEffect, useRef } from 'react'
 /**
  * Generative flow-field art: particles drifting along a layered sine/cosine
  * vector field, leaving fading trails. A nod to decoding motion from neural
- * data. Colors are pulled from the CSS theme variables so it adapts to
- * light/dark mode, and the field gently swirls around the cursor. Rendered
- * fullscreen as the site's living background.
+ * data. Colors are pulled from CSS variables. Rendered fullscreen as the
+ * site's living background.
  */
 
 const PARTICLE_COUNT = 750
@@ -84,13 +83,6 @@ export default function FlowField({ className }: { className?: string }) {
     const ro = new ResizeObserver(resize)
     ro.observe(wrap)
 
-    // repaint with fresh colors when the theme toggles
-    const mo = new MutationObserver(() => {
-      colors = readThemeColors()
-      clearAll()
-    })
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
-
     // listen on the window so the field reacts even though it sits behind content
     const onPointerMove = (e: PointerEvent) => {
       const rect = canvas.getBoundingClientRect()
@@ -165,7 +157,6 @@ export default function FlowField({ className }: { className?: string }) {
     return () => {
       cancelAnimationFrame(raf)
       ro.disconnect()
-      mo.disconnect()
       window.removeEventListener('pointermove', onPointerMove)
       window.removeEventListener('pointerout', onPointerLeave)
     }

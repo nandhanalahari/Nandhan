@@ -1,25 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-
-export type Theme = 'light' | 'dark'
-
-export function useTheme(): [Theme, () => void] {
-  const [theme, setTheme] = useState<Theme>(
-    () => (document.documentElement.dataset.theme as Theme) || 'dark',
-  )
-  const toggle = useCallback(() => {
-    setTheme((prev) => {
-      const next = prev === 'dark' ? 'light' : 'dark'
-      document.documentElement.dataset.theme = next
-      try {
-        localStorage.setItem('theme', next)
-      } catch {
-        /* private mode */
-      }
-      return next
-    })
-  }, [])
-  return [theme, toggle]
-}
+import { useEffect, useRef } from 'react'
 
 export function useReveal<T extends HTMLElement>() {
   const ref = useRef<T>(null)

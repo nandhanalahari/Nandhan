@@ -126,9 +126,6 @@ export default function Home() {
           <a href={LINKS.email} className="btn btn--solid">
             Email me
           </a>
-          <a href={LINKS.resume} target="_blank" rel="noreferrer" className="btn">
-            Resume
-          </a>
           <a href={LINKS.linkedin} target="_blank" rel="noreferrer" className="btn">
             LinkedIn
           </a>

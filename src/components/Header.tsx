@@ -46,9 +46,6 @@ export default function Header() {
           <NavLink to="/about">about</NavLink>
           <NavLink to="/projects">work</NavLink>
           <NavLink to="/experience">experience</NavLink>
-          <a href={LINKS.resume} target="_blank" rel="noreferrer">
-            resume
-          </a>
           <a href={LINKS.github} target="_blank" rel="noreferrer">
             github
           </a>

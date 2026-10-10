@@ -7,9 +7,6 @@ export default function Footer() {
         <p className="mono footer__sig">© {new Date().getFullYear()} Nandhan Alahari</p>
         <div className="footer__links">
           <a href={LINKS.email}>Email</a>
-          <a href={LINKS.resume} target="_blank" rel="noreferrer">
-            Resume
-          </a>
           <a href={LINKS.linkedin} target="_blank" rel="noreferrer">
             LinkedIn
           </a>

@@ -423,5 +423,4 @@ export const LINKS = {
   linkedin: 'https://www.linkedin.com/in/nandhan-alahari/',
   devpost: 'https://devpost.com/nandhu-alahari',
   email: 'mailto:alahari.nandhan@gmail.com',
-  resume: '/Nandhan_Alahari_Resume.pdf',
 }

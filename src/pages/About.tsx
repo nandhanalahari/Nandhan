@@ -1,12 +1,12 @@
 import { useReveal } from '../hooks'
-import { EDUCATION, LINKS } from '../data'
+import { EDUCATION, LINKS, SKILL_GROUPS, iconUrl } from '../data'
 
 const FACTS = [
   { label: 'Location', value: 'Dallas, Texas' },
   { label: 'School', value: EDUCATION.school },
   { label: 'Degree', value: `${EDUCATION.degree}, ${EDUCATION.grad}` },
   { label: 'GPA', value: EDUCATION.gpa },
-  { label: 'Focus', value: 'Machine Learning, Neuroscience × AI, Systems' },
+  { label: 'Focus', value: 'Machine Learning, Cognitive Tools, NLP' },
 ]
 
 export default function About() {
@@ -52,30 +52,54 @@ export default function About() {
 
           <h2 className="about__heading">The work</h2>
           <p>
-            Today I study computer science at UT Dallas with a 4.0 GPA, and I
-            chase that same feeling across very different problems. In the
-            computational neuroscience lab under Dr. Zirong Gu, I build the
-            pipelines that turn hours of multi-camera animal footage into
-            labeled behavioral sequences that researchers can actually analyze.
-            In security research under the R.I.D.E. program, I wrote systems
-            that obfuscate code and then trained models to attack it, because
-            armor you have not measured is armor you should not trust. In NLP
-            research, I helped build MemeQA, a 9,000-question benchmark
-            published at ACL 2025 that shows how far multimodal models still
-            are from genuinely understanding a meme.
+            Today I study computer science at UT Dallas with a 4.0, graduating
+            December 2027. On the UTD EPICS team I am the software engineer for
+            BeyondNeuro, a cognitive wellness platform for stroke survivors,
+            dementia patients, and caregivers.             Last summer, in Dr. Zirong Gu's
+            lab, I restored a stalled MATLAB clustering pipeline and built the
+            video tooling that lets researchers see what each behavioral cluster
+            actually is. The fall before that I spent a semester on ML for
+            software security, obfuscating code and then measuring whether it
+            held. Under Dr. Vincent Ng, I helped build MemeQA, a 9,000-question
+            benchmark published at ACL 2025. This semester I am also building
+            AskUTD with GDSC and SkyAlert with the AI Society.
           </p>
 
           <h2 className="about__heading">The builds</h2>
           <p>
-            Outside of research I build fast at hackathons. NavRisk, a flight
-            crew risk model trained on six million records, won the EPPS x
-            American Airlines Data Challenge. Kolana, a wallet that lets you
-            pay someone by pointing a camera at them and speaking, won Best Use
-            of Solana at HackHCC. Nestor, a scenario-driven portfolio
-            rebalancer, placed top six at the Goldman Sachs & JSOM Hackathon.
-            Different puzzles, same instinct: find the structure, exploit it,
-            cut the solve time.
+            NavRisk, a crew-risk model trained on six million flight records,
+            placed 1st out of 50+ teams at the EPPS x American Airlines Data
+            Challenge, most of them graduate and PhD students. Kolana, a wallet
+            you pay with by pointing a camera and speaking, won Best Use of
+            Solana at HackHCC. Nestor, a scenario-driven portfolio rebalancer,
+            finished top 5 at the Goldman Sachs & JSOM Hackathon.
           </p>
+
+          <h2 className="about__heading">Skills</h2>
+          <div className="skills">
+            {SKILL_GROUPS.map((g) => (
+              <div className="skills__group" key={g.label}>
+                <p className="skills__label">{g.label}</p>
+                <div className="pills">
+                  {g.skills.map((s) => (
+                    <span className="pill" key={s.name}>
+                      {s.icon && (
+                        <img
+                          src={iconUrl(s.icon)}
+                          alt=""
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
+                      )}
+                      {s.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
 
           <h2 className="about__heading">Say hi</h2>
           <p>

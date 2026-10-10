@@ -4,20 +4,26 @@ export default function Footer() {
   return (
     <footer className="footer">
       <div className="container footer__inner">
-        <p className="mono footer__sig">nandhan alahari · {new Date().getFullYear()}</p>
+        <p className="mono footer__sig">© {new Date().getFullYear()} Nandhan Alahari</p>
         <div className="footer__links">
           <a href={LINKS.email}>Email</a>
-          <a href={LINKS.github} target="_blank" rel="noreferrer">
-            GitHub
+          <a href={LINKS.resume} target="_blank" rel="noreferrer">
+            Resume
           </a>
           <a href={LINKS.linkedin} target="_blank" rel="noreferrer">
             LinkedIn
           </a>
-          <a href={LINKS.devpost} target="_blank" rel="noreferrer">
-            Devpost
+          <a href={LINKS.github} target="_blank" rel="noreferrer">
+            GitHub
           </a>
         </div>
-        <p className="mono footer__note">built with react · typescript · canvas</p>
+        <button
+          type="button"
+          className="mono footer__top"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        >
+          back to top ↑
+        </button>
       </div>
     </footer>
   )

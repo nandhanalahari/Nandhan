@@ -8,9 +8,9 @@ export default function Experience() {
       <p className="page__crumb mono fade-up">~/experience</p>
       <h1 className="page__title fade-up">Experience</h1>
       <p className="page__lede fade-up">
-        Research and engineering roles at the University of Texas at Dallas,
-        spanning computational neuroscience, ML-driven software security, and
-        multimodal NLP.
+        Research and engineering at UT Dallas: a campus RAG assistant, disaster
+        imagery, cognitive tools for patients, neuroscience, software security,
+        and multimodal NLP.
       </p>
 
       <div className="entries">

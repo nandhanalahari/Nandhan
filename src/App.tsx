@@ -1,7 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
+import Starfield from './components/Starfield'
+import Intro from './components/Intro'
+import { BootContext } from './boot'
 import Home from './pages/Home'
 import About from './pages/About'
 import Projects from './pages/Projects'
@@ -15,50 +18,50 @@ function ScrollToTop() {
   return null
 }
 
-function Backdrop() {
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) return
-
-    const onMove = (e: PointerEvent) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 80
-      const y = (e.clientY / window.innerHeight - 0.5) * 60
-      el.style.setProperty('--px', `${x.toFixed(1)}px`)
-      el.style.setProperty('--py', `${y.toFixed(1)}px`)
-    }
-    window.addEventListener('pointermove', onMove)
-    return () => window.removeEventListener('pointermove', onMove)
-  }, [])
-
-  return (
-    <div ref={ref} className="aurora" aria-hidden="true">
-      <span className="aurora__blob aurora__blob--a" />
-      <span className="aurora__blob aurora__blob--b" />
-      <span className="aurora__blob aurora__blob--c" />
-    </div>
-  )
-}
+const skipIntro = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export default function App() {
+  const [booted, setBooted] = useState(skipIntro)
+  const [introGone, setIntroGone] = useState(skipIntro)
+
+  useEffect(() => {
+    const prev = history.scrollRestoration
+    history.scrollRestoration = 'manual'
+    window.scrollTo(0, 0)
+    return () => {
+      history.scrollRestoration = prev
+    }
+  }, [])
+
+  useEffect(() => {
+    if (booted) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [booted])
+
   return (
     <BrowserRouter>
-      <ScrollToTop />
-      <Backdrop />
-      <Header />
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/experience" element={<Experience />} />
-          <Route path="*" element={<Home />} />
-        </Routes>
-      </main>
-      <Footer />
+      <BootContext.Provider value={booted}>
+        <div className={`app${booted ? '' : ' app--booting'}`}>
+          <ScrollToTop />
+          <Starfield />
+          {!introGone && <Intro onReveal={() => setBooted(true)} onDone={() => setIntroGone(true)} />}
+          <Header />
+          <main>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/projects" element={<Projects />} />
+              <Route path="/experience" element={<Experience />} />
+              <Route path="*" element={<Home />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </BootContext.Provider>
     </BrowserRouter>
   )
 }

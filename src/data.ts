@@ -307,6 +307,74 @@ export const WORK: WorkCard[] = [
   },
 ]
 
+export const ROLES = [
+  'building machine learning systems',
+  'designing retrieval pipelines',
+  'training vision models',
+  'shipping under deadlines',
+  'solving cubes in 40 seconds',
+]
+
+export interface FocusArea {
+  id: string
+  name: string
+  blurb: string
+  examples: { kind: 'project' | 'tools'; label: string }[]
+}
+
+export const FOCUS: FocusArea[] = [
+  {
+    id: 'machine_learning',
+    name: 'Machine Learning',
+    blurb: 'Models that are trained, evaluated, and served behind a real API.',
+    examples: [
+      { kind: 'project', label: 'NavRisk: XGBoost risk scoring for crew schedules' },
+      { kind: 'project', label: 'Nestor: scenario-driven portfolio rebalancing' },
+      { kind: 'tools', label: 'Python, XGBoost, PyTorch, FastAPI' },
+    ],
+  },
+  {
+    id: 'nlp_retrieval',
+    name: 'NLP & Retrieval',
+    blurb: 'Language systems whose answers can be traced back to a source.',
+    examples: [
+      { kind: 'project', label: 'AskUTD: hybrid search, reranking, page citations' },
+      { kind: 'project', label: 'MemeQA: multimodal benchmark, ACL 2025' },
+      { kind: 'tools', label: 'BM25, sentence-transformers, Llama 3.1, LoRA' },
+    ],
+  },
+  {
+    id: 'computer_vision',
+    name: 'Computer Vision',
+    blurb: 'Turning images and video into decisions people can act on.',
+    examples: [
+      { kind: 'project', label: 'SkyAlert: ResNet classifier and U-Net segmentation' },
+      { kind: 'project', label: 'Kolana: face recognition for identity payments' },
+      { kind: 'tools', label: 'PyTorch, InsightFace, NASA FIRMS' },
+    ],
+  },
+  {
+    id: 'full_stack',
+    name: 'Full-stack',
+    blurb: 'The interface and the backend that make a model usable.',
+    examples: [
+      { kind: 'project', label: 'BeyondNeuro: accessible PWA for patients and caregivers' },
+      { kind: 'project', label: 'Kolana: FastAPI service on MongoDB vector search' },
+      { kind: 'tools', label: 'React, Next.js, FastAPI, Supabase' },
+    ],
+  },
+  {
+    id: 'research',
+    name: 'Research',
+    blurb: 'Careful experiments, reproducible pipelines, and written results.',
+    examples: [
+      { kind: 'project', label: 'MemeQA: published at ACL 2025' },
+      { kind: 'project', label: 'Gu Lab: neural data and video pipelines' },
+      { kind: 'tools', label: 'Python, MATLAB, PyTorch' },
+    ],
+  },
+]
+
 export const PRINCIPLES = [
   {
     title: 'Find the better method',

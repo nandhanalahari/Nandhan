@@ -1,494 +1,428 @@
-export interface Announcement {
-  title: string
-  date: string
-  kind: 'Project' | 'Research' | 'Update'
-  body: string
+/**
+ * Single source of truth for site content. Pages render from these objects;
+ * nothing here knows about layout.
+ */
+
+export const LINKS = {
+  email: 'mailto:alahari.nandhan@gmail.com',
+  emailAddress: 'alahari.nandhan@gmail.com',
+  github: 'https://github.com/nandhanalahari',
+  linkedin: 'https://www.linkedin.com/in/nandhan-alahari/',
+  devpost: 'https://devpost.com/nandhu-alahari',
 }
 
-export interface Skill {
-  name: string
-  /** devicon path fragment, e.g. "python/python-original" */
-  icon?: string
+export const PROFILE = {
+  name: 'Nandhan Alahari',
+  short: 'Nandhan',
+  location: 'Dallas, Texas',
+  school: 'The University of Texas at Dallas',
+  degree: 'B.S. Computer Science',
+  grad: 'December 2027',
+  gpa: '4.0',
+  /** One line, used in hero and meta description. */
+  pitch: 'I build machine learning systems and the software that makes them usable, from research benchmarks to production pipelines.',
+  status: 'Open to software engineering and machine learning roles',
 }
 
-export interface SkillGroup {
+export interface Metric {
+  value: string
   label: string
-  skills: Skill[]
 }
 
-export interface ProjectItem {
+export interface ProjectLink {
+  label: string
+  href: string
+}
+
+/** Project slugs double as camera stops in the universe (see src/cosmos/journey.ts). */
+export type ProjectSlug = 'dc-router' | 'navrisk' | 'kolana' | 'memeqa' | 'nestor'
+
+export interface Project {
+  slug: ProjectSlug
   name: string
-  tagline: string
-  overview: string
-  points: string[]
-  outcome?: string
-  stack: string[]
+  year: string
+  /** Where it was built: hackathon, challenge, lab. */
+  venue: string
   award?: string
-  link?: string
+  /** Rank-like short form for compact UI, e.g. "2nd". */
+  badge?: string
+  tagline: string
+  /** 2–3 sentence problem framing. */
+  problem: string
+  /** What was built and how; each item is one engineering decision. */
+  approach: { title: string; body: string }[]
+  /** First-person: what Nandhan personally owned. */
+  role: string
+  metrics: Metric[]
+  stack: string[]
+  links: ProjectLink[]
+  team?: string
+  featured: boolean
+  /** Optional held-out evaluation, rendered as its own block on the case study. */
+  evaluation?: { title: string; intro: string; rows: { label: string; value: string }[]; caveat: string }
 }
 
-export interface ExperienceItem {
-  role: string
+export const PROJECTS: Project[] = [
+  {
+    slug: 'dc-router',
+    name: 'DC Router',
+    year: '2026',
+    venue: 'HackUTD 2026, NMC² track',
+    award: '2nd place, HackUTD 2026 (NMC² track)',
+    badge: '2nd',
+    tagline: 'Schedules GPU data-center maintenance at market prices without overheating the hall.',
+    problem:
+      'GPU compute is now a priced commodity. H100 rentals swing from $2.31 to $4.95 an hour across providers, yet operators still run maintenance as soon as possible, blind to what those GPU-hours are worth that day. Worse, the naive schedule takes two cooling units in neighboring zones down at the same time, and both zones overheat.',
+    approach: [
+      {
+        title: 'Price every hour of downtime',
+        body: 'Each candidate slot is priced with a weekly H100 forecast built from GetDeploying market data, plus SLA credits owed on pre-sold capacity and a failure risk that grows the longer a repair waits.',
+      },
+      {
+        title: 'Never overheat, by construction',
+        body: 'A greedy optimizer takes the most urgent task first and the cheapest open slot, then improves locally. Every candidate is checked against an hour-by-hour thermal simulator with thermal inertia, so no zone crosses 32 °C. A full plan (40+ slots per task, 6 tasks) takes about 17 ms.',
+      },
+      {
+        title: 'An agent that decides, while code computes',
+        body: 'NVIDIA Nemotron, via build.nvidia.com function calling, orchestrates 9 FastAPI tools to turn a request like “UPS-B battery swap, 3 hours, vendor only Wed or Fri” into a priced, simulated plan. Guardrails keep every price and every piece of arithmetic in code; any explanation quoting a number the tools didn’t produce is replaced.',
+      },
+      {
+        title: 'Watch the week play out',
+        body: 'A Three.js cut-away of the GPU hall replays the week hour by hour, with racks going dark, zone temperatures shifting, and a live cost counter comparing both plans.',
+      },
+    ],
+    role: 'I built the maintenance planner and its thermal-aware optimizer, wired in real GPU market prices, and built the Three.js data hall, price charts, hourly cost drill-down, and week report.',
+    metrics: [
+      { value: '42.8%', label: 'lower weekly cost than ASAP ($13.6K saved)' },
+      { value: '0 vs 5', label: 'overheats, optimized vs ASAP' },
+      { value: '0 / 100', label: 'unseen seeded weeks with an overheat' },
+      { value: '~17 ms', label: 'to build and simulate a full week plan' },
+    ],
+    stack: ['Python', 'FastAPI', 'Pydantic', 'NVIDIA Nemotron', 'Function calling', 'Three.js', 'pytest'],
+    links: [
+      { label: 'Source on GitHub', href: 'https://github.com/Fawazjams/utdhacksDCRouter' },
+      { label: 'Devpost', href: 'https://devpost.com/software/nemo-an40kd' },
+    ],
+    team: 'Built in 24 hours with Fawaz Jamshed and Lokesh Reddy Penugonda.',
+    featured: true,
+    evaluation: {
+      title: 'Tested on 100 weeks it never saw',
+      intro:
+        'One good demo week proves little, so both planners ran on 100 seeded weeks the optimizer was never tuned on.',
+      rows: [
+        { label: 'Weeks tested', value: '100' },
+        { label: 'Optimized weeks with any overheat', value: '0 of 100' },
+        { label: 'ASAP weeks with any overheat', value: '59 of 100' },
+        { label: 'Planted cooling conflicts ASAP walked into', value: '45 of 45' },
+        { label: 'Optimized cheaper than ASAP (like-for-like weeks)', value: '100%' },
+        { label: 'Median saving per week', value: '$3,091.99' },
+        { label: 'Jobs left unscheduled, ASAP vs optimized', value: '9 vs 0' },
+      ],
+      caveat:
+        'Every week runs on an assumed thermal and cost model, so this shows the planner is reliable inside the simulation, not in a real hall. Optimized never overheating is by construction; the informative numbers are ASAP’s catch rate and the savings.',
+    },
+  },
+  {
+    slug: 'navrisk',
+    name: 'NavRisk',
+    year: '2026',
+    venue: 'EPPS × American Airlines Data Challenge',
+    award: '1st of 50+ teams, EPPS × American Airlines Data Challenge',
+    badge: '1st',
+    tagline: 'A predictive risk engine for airline crew scheduling.',
+    problem:
+      'Crew schedules fail in cascades: one delayed leg propagates downstream, pushes a crew past federal duty limits, and strands them away from their next departure. NavRisk scores that risk before it happens, while there is still time to re-sequence.',
+    approach: [
+      {
+        title: 'Two decades of flights',
+        body: 'Trained an XGBoost model on 6M+ Bureau of Transportation Statistics records across 141 airports and 21 years, scoring four failure modes: delay propagation, duty violations, missed connections, and weather.',
+      },
+      {
+        title: 'Features that keep local signal',
+        body: 'Engineered 36K+ airport-pair × season features so winter congestion at a northern hub stays a hub-specific signal instead of dissolving into a global average.',
+      },
+      {
+        title: 'Make propagation visible',
+        body: 'A live risk network graph models airports as nodes and crew connections as edges, fed by real-time METAR weather, so schedulers can trace where a delay will travel.',
+      },
+    ],
+    role: 'I architected the full-stack app and REST API, and built the XGBoost scoring model and the feature engineering pipeline.',
+    metrics: [
+      { value: '1st', label: 'of 50+ teams, against graduate and PhD competitors' },
+      { value: '6M+', label: 'flight records, 21 years' },
+      { value: '36K+', label: 'engineered features' },
+      { value: '141', label: 'airports in the risk graph' },
+    ],
+    stack: ['Python', 'XGBoost', 'REST API', 'METAR', 'React'],
+    links: [],
+    featured: true,
+  },
+  {
+    slug: 'kolana',
+    name: 'Kolana',
+    year: '2026',
+    venue: 'HackHCC',
+    award: 'Best Use of Solana, HackHCC',
+    badge: 'Best',
+    tagline: 'Pay someone by pointing your camera at them and saying how much.',
+    problem:
+      'Crypto payments still ask people to copy a 44-character wallet address. Kolana replaces the address with a face and the form with a sentence.',
+    approach: [
+      {
+        title: 'Faces as addresses',
+        body: 'An InsightFace model on a DigitalOcean server turns each enrolled contact into a 512-dimensional embedding in MongoDB Atlas; live camera frames resolve to identities through Atlas Vector Search.',
+      },
+      {
+        title: 'Speech as the interface',
+        body: 'Gemini 2.5 Flash parses “send her twenty dollars” into a structured payment intent, and ElevenLabs speaks the confirmation back.',
+      },
+      {
+        title: 'Settle on-chain, fast',
+        body: 'A FastAPI backend coordinates recognition, intent, and a wallet-to-wallet SOL transfer that settles in roughly 400 ms.',
+      },
+    ],
+    role: 'I learned Solana from scratch during the hackathon and shipped the on-chain integration, the face-recognition service, and the FastAPI orchestration.',
+    metrics: [
+      { value: '~400 ms', label: 'on-chain settlement' },
+      { value: '512-d', label: 'face embeddings with vector search' },
+    ],
+    stack: ['FastAPI', 'Solana', 'InsightFace', 'MongoDB Atlas Vector Search', 'Gemini 2.5 Flash', 'ElevenLabs'],
+    links: [{ label: 'Source on GitHub', href: 'https://github.com/nandhanalahari/Kolana' }],
+    featured: true,
+  },
+  {
+    slug: 'memeqa',
+    name: 'MemeQA',
+    year: '2025',
+    venue: 'UT Dallas, Dr. Vincent Ng’s lab',
+    award: 'Published at ACL 2025',
+    badge: 'ACL',
+    tagline: 'A benchmark that tests whether multimodal models actually get the joke.',
+    problem:
+      'A meme’s meaning lives between the image, its text, and shared culture. Earlier benchmarks tested narrow slices of that. MemeQA tests it whole, and shows state-of-the-art models still miss the point.',
+    approach: [
+      {
+        title: 'Seven kinds of understanding',
+        body: 'A 9K+ multiple-choice dataset spanning seven cognitive aspects, from fine-grained visual recognition to cultural and commonsense reasoning.',
+      },
+      {
+        title: 'No shortcuts allowed',
+        body: 'Adversarial filtering removed questions a model could answer from statistical artifacts alone, so the benchmark measures understanding.',
+      },
+      {
+        title: 'Efficient adaptation',
+        body: 'LoRA fine-tuning workflows adapted large vision-language models for sentiment, intent, and context classification.',
+      },
+    ],
+    role: 'I built the data curation pipeline and the LoRA fine-tuning workflow, and co-authored the paper.',
+    metrics: [
+      { value: '9K+', label: 'questions' },
+      { value: '7', label: 'cognitive aspects evaluated' },
+      { value: 'ACL', label: '2025, long paper' },
+    ],
+    stack: ['PyTorch', 'Vision-language models', 'LoRA', 'Adversarial filtering'],
+    links: [{ label: 'Read the paper', href: 'https://aclanthology.org/2025.acl-long.927' }],
+    featured: true,
+  },
+  {
+    slug: 'nestor',
+    name: 'Nestor',
+    year: '2026',
+    venue: 'Goldman Sachs & JSOM Hackathon',
+    award: 'Top 5, Goldman Sachs & JSOM Hackathon',
+    badge: 'Top 5',
+    tagline: 'Portfolio rebalancing for the specific scenario you’re worried about.',
+    problem:
+      'Generic portfolio advice optimizes for an average future. Nestor rebalances for a named scenario, like a pandemic, a tech surge, or a rate shock, using how comparable regimes behaved historically.',
+    approach: [
+      {
+        title: 'Predict, then optimize',
+        body: 'XGBoost predicts per-asset returns conditioned on the scenario; a mean-variance optimizer turns those predictions into the minimum-risk allocation at the target return.',
+      },
+      {
+        title: 'Broad market data',
+        body: '8,049 tickers, real-time Yahoo Finance prices, and FRED macro indicators (Treasury yields, CPI, unemployment, the VIX).',
+      },
+      {
+        title: 'Explain the shift',
+        body: 'Gemini translates the optimizer’s weight changes into plain-language reasoning.',
+      },
+    ],
+    role: 'I designed the two-stage prediction and optimization engine and the data pipeline behind it.',
+    metrics: [
+      { value: '8,049', label: 'tickers' },
+      { value: 'Top 5', label: 'Goldman Sachs & JSOM' },
+    ],
+    stack: ['Python', 'XGBoost', 'Mean-variance optimization', 'FRED', 'Gemini'],
+    links: [{ label: 'Source on GitHub', href: 'https://github.com/nandhanalahari/Nestor' }],
+    featured: false,
+  },
+]
+
+export const projectBySlug = (slug: string | undefined) => PROJECTS.find((p) => p.slug === slug)
+
+export interface Role {
+  id: string
+  title: string
   org: string
-  period: string
+  where: string
+  start: string
+  end: string
+  current: boolean
   summary: string
   bullets: string[]
   tech: string[]
 }
 
-export interface Highlight {
-  value: string
-  label: string
-}
-
-export const ANNOUNCEMENTS: Announcement[] = [
+export const EXPERIENCE: Role[] = [
   {
-    title: 'Joined BeyondNeuro on UTD EPICS',
-    date: 'August 2026',
-    kind: 'Project',
-    body: 'Joined the UTD EPICS team building BeyondNeuro, a cognitive wellness platform for stroke survivors, dementia patients, and caregivers.',
+    id: 'beyondneuro',
+    title: 'Software Engineer & Project Liaison',
+    org: 'BeyondNeuro, UTD EPICS',
+    where: 'Richardson, TX',
+    start: 'Aug 2026',
+    end: 'Present',
+    current: true,
+    summary:
+      'Architecting a cognitive wellness platform for stroke survivors, dementia patients, and caregivers, for a nonprofit client.',
+    bullets: [
+      'Translated clinical priorities into a 4-sprint roadmap: interactive cognitive modules, an activity library, local progress tracking, and a PWA with an AI avatar, agreed in biweekly stakeholder syncs.',
+      'Shipping sprint 1 of 4: the first cognitive training modules and the onboarding flow.',
+      'Designed for WCAG accessibility and role-based access, so patients, family caregivers, and providers each see only what they should.',
+    ],
+    tech: ['React', 'PWA', 'WCAG', 'RBAC'],
   },
   {
-    title: '1st place at the EPPS x American Airlines Data Challenge',
-    date: '2026',
-    kind: 'Project',
-    body: 'NavRisk took first place: an XGBoost model trained on 6M+ flight records that flags high-risk crew sequences, wrapped in a full-stack app with live METAR weather.',
+    id: 'askutd',
+    title: 'AI Software Engineer',
+    org: 'Google Developer Groups, UT Dallas',
+    where: 'Richardson, TX',
+    start: 'Sep 2026',
+    end: 'Present',
+    current: true,
+    summary: 'Building AskUTD, a retrieval-augmented assistant that answers university policy questions with exact page citations.',
+    bullets: [
+      'Indexing 200+ official PDFs: course requirements, degree plans, registrar policy, and academic regulations.',
+      'Hybrid retrieval: BM25 plus dense vectors (sentence-transformers), reranked by a local BGE cross-encoder.',
+      'Query decomposition and Self-RAG verification with nightly RAGAS evaluations, on a local Llama 3.1 8B.',
+    ],
+    tech: ['RAG', 'BM25', 'Llama 3.1', 'FastAPI', 'Next.js', 'RAGAS'],
   },
   {
-    title: 'Joined the Computational Neuroscience Lab',
-    date: 'June 2026',
-    kind: 'Research',
-    body: 'Working under Dr. Zirong Gu on pipelines that decode animal behavior from multi-camera tracking data: 3D pose, acceleration, and motion frequency at scale.',
+    id: 'skyalert',
+    title: 'Machine Learning Engineer',
+    org: 'Artificial Intelligence Society, UT Dallas',
+    where: 'Richardson, TX',
+    start: 'Sep 2026',
+    end: 'Present',
+    current: true,
+    summary: 'Building SkyAlert, which detects and maps wildfire and flood damage from satellite imagery for first responders.',
+    bullets: [
+      'Two-phase vision pipeline: a ResNet classifier flags affected regions, then U-Net segmentation maps damage per pixel.',
+      'NASA FIRMS and DeepGlobe imagery with spectral indices (NDVI, NBR), served through FastAPI and a Folium map.',
+    ],
+    tech: ['PyTorch', 'ResNet', 'U-Net', 'FastAPI'],
   },
   {
-    title: 'Won Best Use of Solana at HackHCC',
-    date: 'June 2026',
-    kind: 'Project',
-    body: 'Our team built Kolana, a wallet that lets you pay someone by pointing your camera at them and speaking. Face recognition, voice parsing, and on-chain settlement.',
+    id: 'gu-lab',
+    title: 'Research Assistant',
+    org: 'Computational Neuroscience Lab, Dr. Zirong Gu',
+    where: 'UT Dallas',
+    start: 'Jun 2026',
+    end: 'Aug 2026',
+    current: false,
+    summary: 'Restored a stalled behavioral-analysis pipeline, then built the tooling that shows researchers what each cluster actually is.',
+    bullets: [
+      'Diagnosed and restored a broken MATLAB pipeline running affinity propagation clustering over multi-camera tracking data (3D pose, acceleration, motion frequency), unblocking 12+ experimental sessions.',
+      'Engineered a Python video-processing pipeline from scratch that auto-generates per-cluster clips from clustered sensor data.',
+      'Redesigned the cluster-to-frame mapping algorithm, cutting processing time 60% on 10+ hour recordings.',
+    ],
+    tech: ['Python', 'MATLAB', 'Affinity propagation', '3D pose'],
   },
   {
-    title: 'MemeQA published at ACL 2025',
-    date: 'July 2025',
-    kind: 'Research',
-    body: 'Co-authored MemeQA, a 9K+ question benchmark for holistic meme understanding, published at the 63rd Annual Meeting of the ACL.',
+    id: 'ride',
+    title: 'AI/ML Security Engineer',
+    org: 'R.I.D.E. Program, UT Dallas',
+    where: 'Richardson, TX',
+    start: 'Sep 2025',
+    end: 'Dec 2025',
+    current: false,
+    summary: 'Machine learning for software security: hardening code against reverse engineering, and measuring whether it held.',
+    bullets: [
+      'Built Python ML systems that design and apply code obfuscation techniques.',
+      'Built benchmarks and models that measure obfuscation strength and resistance to automated deobfuscation.',
+    ],
+    tech: ['Python', 'Machine learning', 'Obfuscation'],
+  },
+  {
+    id: 'ng-lab',
+    title: 'Machine Learning Researcher',
+    org: 'Human Language Technology, Dr. Vincent Ng',
+    where: 'UT Dallas',
+    start: 'Jun 2024',
+    end: 'Sep 2024',
+    current: false,
+    summary: 'Multimodal NLP research on machine understanding of memes, published as MemeQA at ACL 2025.',
+    bullets: [
+      'Built a multimodal system (vision + NLP) using vision-language models to classify sentiment, intent, and context in memes.',
+      'Engineered the data curation pipeline and LoRA fine-tuning workflow, with adversarial filtering across a 9K+ question dataset.',
+    ],
+    tech: ['PyTorch', 'VLMs', 'LoRA'],
   },
 ]
 
-const DEVICON = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons'
-
-export function iconUrl(fragment: string): string {
-  return `${DEVICON}/${fragment}.svg`
+export interface NewsItem {
+  date: string
+  title: string
+  href?: string
+  win?: boolean
 }
 
-export const SKILL_GROUPS: SkillGroup[] = [
-  {
-    label: 'Programming Languages',
-    skills: [
-      { name: 'Python', icon: 'python/python-original' },
-      { name: 'Java', icon: 'java/java-original' },
-      { name: 'C++', icon: 'cplusplus/cplusplus-original' },
-      { name: 'C', icon: 'c/c-original' },
-      { name: 'C#', icon: 'csharp/csharp-original' },
-      { name: 'Swift', icon: 'swift/swift-original' },
-      { name: 'SQL', icon: 'azuresqldatabase/azuresqldatabase-original' },
-      { name: 'Assembly' },
-    ],
-  },
-  {
-    label: 'Frameworks & Tools',
-    skills: [
-      { name: 'React', icon: 'react/react-original' },
-      { name: 'React Native', icon: 'react/react-original' },
-      { name: 'Node.js', icon: 'nodejs/nodejs-original' },
-      { name: 'GitHub Actions', icon: 'githubactions/githubactions-original' },
-      { name: 'Supabase', icon: 'supabase/supabase-original' },
-      { name: 'Linux', icon: 'linux/linux-original' },
-      { name: 'Git', icon: 'git/git-original' },
-    ],
-  },
-  {
-    label: 'Machine Learning & Data',
-    skills: [
-      { name: 'XGBoost' },
-      { name: 'MATLAB', icon: 'matlab/matlab-original' },
-      { name: 'MongoDB Atlas', icon: 'mongodb/mongodb-original' },
-      { name: 'FastAPI', icon: 'fastapi/fastapi-original' },
-      { name: 'LoRA Fine-tuning' },
-      { name: 'Gemini API' },
-    ],
-  },
-  {
-    label: 'Concepts',
-    skills: [
-      { name: 'Machine Learning' },
-      { name: 'Computer Vision' },
-      { name: 'NLP' },
-      { name: 'LLMs' },
-      { name: 'Vector Databases' },
-      { name: 'RESTful APIs' },
-      { name: 'CI/CD' },
-      { name: 'Data Structures & Algorithms' },
-    ],
-  },
+export const NEWS: NewsItem[] = [
+  { date: 'Nov 2026', title: 'DC Router took 2nd place in the NMC² track at HackUTD 2026', href: '/work/dc-router', win: true },
+  { date: 'Sep 2026', title: 'Started building AskUTD (GDG) and SkyAlert (AI Society)' },
+  { date: 'Aug 2026', title: 'Joined BeyondNeuro on UTD EPICS as software engineer and liaison' },
+  { date: 'Jun 2026', title: 'Kolana won Best Use of Solana at HackHCC', href: '/work/kolana', win: true },
+  { date: 'Jun 2026', title: 'Joined Dr. Zirong Gu’s Computational Neuroscience Lab' },
+  { date: '2026', title: 'NavRisk placed 1st of 50+ teams at the EPPS × American Airlines Data Challenge', href: '/work/navrisk', win: true },
+  { date: 'Jul 2025', title: 'MemeQA published at ACL 2025', href: '/work/memeqa', win: true },
 ]
 
-export const HIGHLIGHTS: Highlight[] = [
+export const STATS: Metric[] = [
+  { value: '4', label: 'competition awards' },
+  { value: 'ACL', label: '2025 publication' },
   { value: '4.0', label: 'GPA at UT Dallas' },
-  { value: '1st', label: 'EPPS x American Airlines Data Challenge' },
-  { value: 'ACL 2025', label: 'Published co-author' },
-  { value: '3', label: 'Hackathon & challenge awards' },
+  { value: '6M+', label: 'records in my largest model' },
 ]
 
-export const PROJECTS: ProjectItem[] = [
-  {
-    name: 'NavRisk',
-    tagline: 'A predictive risk engine for airline crew scheduling.',
-    overview:
-      'Airline crew schedules fail in cascades: a single delayed leg propagates downstream, pushes crews past federal duty-time limits, and strands them away from their next departure. NavRisk quantifies that risk before it materializes, scoring proposed crew sequences against two decades of operational history and live weather conditions so schedulers can intervene while there is still time to re-sequence.',
-    points: [
-      'Trained an XGBoost classifier on more than six million Bureau of Transportation Statistics flight records spanning 141 airports and 21 years, labeling high-risk crew sequences across four distinct failure modes: delay propagation, duty-time violations, missed connections, and weather exposure.',
-      'Engineered a feature space of over 36,000 airport-pair by season combinations, allowing the model to capture route-specific seasonal behavior, such as winter congestion at northern hubs, rather than diluting those signals into global averages.',
-      'Constructed a live risk network graph that models airports as nodes and crew connections as edges, making delay propagation paths visible and traceable rather than implicit in a single score.',
-      'Integrated real-time METAR aviation weather feeds into a full-stack web application that evaluates a proposed schedule and returns instant, ranked re-sequencing recommendations.',
-    ],
-    outcome:
-      'NavRisk placed 1st out of 50+ teams at the EPPS x American Airlines Data Challenge, against graduate and PhD competitors.',
-    stack: ['XGBoost', 'Python', 'METAR', 'Feature Engineering', 'Full-Stack'],
-    award: '1st of 50+ teams, EPPS x American Airlines Data Challenge',
-  },
-  {
-    name: 'Kolana',
-    tagline: 'Identity-based payments: point your camera at a person and speak.',
-    overview:
-      'Crypto payments still require the least human interface imaginable: a 44-character wallet address. Kolana replaces addresses with faces and typing with natural speech. The user points a phone at an enrolled contact, says something like "send twenty dollars," and the transfer settles on-chain in under half a second.',
-    points: [
-      'Deployed an InsightFace facial recognition model on a DigitalOcean cloud server; every enrolled contact is represented as a 512-dimensional face embedding stored in MongoDB Atlas, and live camera frames are resolved to identities in real time through Atlas Vector Search similarity queries.',
-      'Built a voice pipeline in which speech is parsed by Gemini 2.5 Flash into a structured payment intent (amount, recipient, timing), and ElevenLabs speaks a confirmation back to the user.',
-      'Executed live wallet-to-wallet SOL transfers on the Solana blockchain with settlement in approximately 400 milliseconds, orchestrated by a FastAPI backend that coordinates recognition, intent parsing, and transaction submission.',
-    ],
-    outcome:
-      'Kolana won Best Use of Solana at HackHCC, built end-to-end within the hackathon window.',
-    stack: ['Solana', 'InsightFace', 'MongoDB Atlas', 'Vector Search', 'Gemini', 'ElevenLabs', 'FastAPI'],
-    award: 'Best Use of Solana, HackHCC',
-    link: 'https://devpost.com/nandhu-alahari',
-  },
-  {
-    name: 'Nestor',
-    tagline: 'Scenario-driven portfolio rebalancing grounded in market history.',
-    overview:
-      'Generic portfolio advice optimizes for an average future. Nestor rebalances for the specific scenario an investor is actually worried about, whether that is a pandemic, a technology surge, or a rate shock, by conditioning its predictions on how comparable regimes have behaved historically.',
-    points: [
-      'Designed a two-stage engine: XGBoost predicts per-asset returns conditioned on the selected market scenario, and a Mean-Variance Optimization layer solves for the allocation that minimizes portfolio risk at the target return, turning predictions into a mathematically grounded rebalancing decision.',
-      'Built the training and inference pipeline on a Kaggle set of 8,049 tickers (5,884 stocks and 2,165 ETFs), real-time Yahoo Finance prices, and 10 FRED macroeconomic indicators. Six of those indicators feed the XGBoost model: Treasury yields, CPI, unemployment, and the VIX among them.',
-      'Integrated the Gemini API to translate raw optimization outputs into plain-language, actionable insights, so users receive reasoning about why the allocation shifted rather than an unexplained weight vector.',
-    ],
-    outcome:
-      'Nestor finished top 5 at the Goldman Sachs & JSOM Hackathon.',
-    stack: ['XGBoost', 'Mean-Variance Optimization', 'Python', 'Gemini', 'FRED', 'Yahoo Finance'],
-    award: 'Top 5, Goldman Sachs & JSOM Hackathon',
-  },
-  {
-    name: 'MemeQA',
-    tagline: 'A holistic benchmark for machine understanding of memes.',
-    overview:
-      'Memes are among the hardest multimodal understanding problems in NLP: the meaning lives in the interaction between an image, its text, and shared cultural context. Existing benchmarks tested narrow slices of that problem. MemeQA evaluates it holistically, and the results show that state-of-the-art models still miss the point.',
-    points: [
-      'Designed and implemented a multimodal AI system combining vision and NLP for meme understanding, leveraging large vision-language models with multi-task reasoning across sentiment, intent, and contextual inference.',
-      'Built and evaluated a dataset pipeline of more than 9,000 multiple-choice questions spanning seven cognitive aspects of meme comprehension, from fine-grained visual recognition to commonsense and cultural reasoning.',
-      'Applied LoRA fine-tuning to adapt large vision-language models efficiently, and adversarial filtering to eliminate questions solvable through statistical shortcuts, ensuring the benchmark measures genuine understanding.',
-      'Evaluation showed state-of-the-art large multimodal models performing substantially below human accuracy, with errors concentrated on memes requiring reasoning beyond surface-level sentiment.',
-    ],
-    outcome:
-      'Published at ACL 2025 (Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics), one of the premier venues in natural language processing.',
-    stack: ['Vision-Language Models', 'LoRA', 'PyTorch', 'Multimodal QA', 'NLP'],
-    award: 'Published at ACL 2025',
-    link: 'https://aclanthology.org/2025.acl-long.927',
-  },
-]
-
-export interface TimelineItem {
-  when: string
-  /** Rendered as: lead <strong>focus</strong> rest */
-  lead: string
-  focus: string
-  rest: string
+export const PUBLICATION = {
+  title: 'MemeQA: Holistic Evaluation for Meme Understanding',
+  venue: 'Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL 2025)',
+  href: 'https://aclanthology.org/2025.acl-long.927',
 }
 
-export const TIMELINE: TimelineItem[] = [
-  {
-    when: 'Age 7',
-    lead: 'Started',
-    focus: 'building',
-    rest: ' with LEGO, learning to turn a big idea into small, ordered steps. That habit became how I approach engineering.',
-  },
-  {
-    when: 'Age 12',
-    lead: 'Got into',
-    focus: 'puzzles',
-    rest: " and Rubik's cubes. My first solve took over two minutes; better algorithms, not faster hands, got me to 40 seconds.",
-  },
-  {
-    when: 'Age 17',
-    lead: 'Moved into',
-    focus: 'research',
-    rest: ', co-authoring MemeQA, published at ACL 2025, then joining more research labs at UT Dallas.',
-  },
-  {
-    when: 'Age 18',
-    lead: 'Focused on',
-    focus: 'shipping',
-    rest: ': delivering projects for competitions and clubs on real deadlines, and building the communication skills to lead them. 1st of 50+ teams at EPPS x American Airlines, Best Use of Solana at HackHCC, top 5 at Goldman Sachs.',
-  },
-  {
-    when: 'Today',
-    lead: 'Building',
-    focus: 'applied ML',
-    rest: ' on three teams at once: BeyondNeuro for patients and caregivers, AskUTD for campus questions, and SkyAlert for disaster response.',
-  },
-]
-
-export interface WorkCard {
-  meta: string
-  name: string
-  line: string
-  tags: string[]
-  status: string
-  to: string
-}
-
-export const WORK: WorkCard[] = [
-  {
-    meta: 'AI software engineer, GDSC · sep 2026 - present',
-    name: 'AskUTD',
-    line: 'Answers UTD policy and degree questions from 200+ official PDFs, with exact page citations.',
-    tags: ['rag', 'bm25', 'bge-reranker', 'llama-3.1', 'fastapi', 'next.js'],
-    status: 'in development · nightly RAGAS evals',
-    to: '/experience',
-  },
-  {
-    meta: 'ml engineer, AI Society · sep 2026 - present',
-    name: 'SkyAlert',
-    line: 'Detects and maps wildfire and flood damage from satellite imagery for first responders.',
-    tags: ['resnet', 'u-net', 'nasa-firms', 'fastapi', 'streamlit'],
-    status: 'in development · two-phase vision pipeline',
-    to: '/experience',
-  },
-  {
-    meta: 'software engineer, UTD EPICS · aug 2026 - present',
-    name: 'BeyondNeuro',
-    line: 'Cognitive wellness platform for stroke survivors, dementia patients, and caregivers.',
-    tags: ['react', 'pwa', 'wcag', 'rbac'],
-    status: 'shipping · sprint 1 of 4',
-    to: '/experience',
-  },
-  {
-    meta: 'data challenge · 2026',
-    name: 'NavRisk',
-    line: 'Scores airline crew schedules for delay, duty, connection, and weather risk.',
-    tags: ['xgboost', 'python', 'metar', 'rest-api'],
-    status: '1st of 50+ teams · EPPS x American Airlines',
-    to: '/projects',
-  },
-  {
-    meta: 'hackathon · 2026',
-    name: 'Kolana',
-    line: 'Pay someone on Solana by pointing your camera at them and speaking.',
-    tags: ['solana', 'insightface', 'mongodb-vector', 'gemini', 'fastapi'],
-    status: 'Best Use of Solana · HackHCC',
-    to: '/projects',
-  },
-  {
-    meta: 'research · 2024 - 2025',
-    name: 'MemeQA',
-    line: 'A 9,000+ question benchmark testing whether multimodal models understand memes.',
-    tags: ['vision-language', 'lora', 'pytorch', 'nlp'],
-    status: 'published · ACL 2025',
-    to: '/projects',
-  },
-]
-
-export const ROLES = [
-  'building machine learning systems',
-  'designing retrieval pipelines',
-  'training vision models',
-  'shipping under deadlines',
-  'solving cubes in 40 seconds',
-]
-
-export interface FocusArea {
-  id: string
-  name: string
-  blurb: string
-  examples: { kind: 'project' | 'tools'; label: string }[]
-}
-
-export const FOCUS: FocusArea[] = [
-  {
-    id: 'machine_learning',
-    name: 'Machine Learning',
-    blurb: 'Models that are trained, evaluated, and served behind a real API.',
-    examples: [
-      { kind: 'project', label: 'NavRisk: XGBoost risk scoring for crew schedules' },
-      { kind: 'project', label: 'Nestor: scenario-driven portfolio rebalancing' },
-      { kind: 'tools', label: 'Python, XGBoost, PyTorch, FastAPI' },
-    ],
-  },
-  {
-    id: 'nlp_retrieval',
-    name: 'NLP & Retrieval',
-    blurb: 'Language systems whose answers can be traced back to a source.',
-    examples: [
-      { kind: 'project', label: 'AskUTD: hybrid search, reranking, page citations' },
-      { kind: 'project', label: 'MemeQA: multimodal benchmark, ACL 2025' },
-      { kind: 'tools', label: 'BM25, sentence-transformers, Llama 3.1, LoRA' },
-    ],
-  },
-  {
-    id: 'computer_vision',
-    name: 'Computer Vision',
-    blurb: 'Turning images and video into decisions people can act on.',
-    examples: [
-      { kind: 'project', label: 'SkyAlert: ResNet classifier and U-Net segmentation' },
-      { kind: 'project', label: 'Kolana: face recognition for identity payments' },
-      { kind: 'tools', label: 'PyTorch, InsightFace, NASA FIRMS' },
-    ],
-  },
-  {
-    id: 'full_stack',
-    name: 'Full-stack',
-    blurb: 'The interface and the backend that make a model usable.',
-    examples: [
-      { kind: 'project', label: 'BeyondNeuro: accessible PWA for patients and caregivers' },
-      { kind: 'project', label: 'Kolana: FastAPI service on MongoDB vector search' },
-      { kind: 'tools', label: 'React, Next.js, FastAPI, Supabase' },
-    ],
-  },
-  {
-    id: 'research',
-    name: 'Research',
-    blurb: 'Careful experiments, reproducible pipelines, and written results.',
-    examples: [
-      { kind: 'project', label: 'MemeQA: published at ACL 2025' },
-      { kind: 'project', label: 'Gu Lab: neural data and video pipelines' },
-      { kind: 'tools', label: 'Python, MATLAB, PyTorch' },
-    ],
-  },
+export const SKILLS: { group: string; items: string[] }[] = [
+  { group: 'Languages', items: ['Python', 'Java', 'C++', 'C', 'C#', 'Swift', 'MATLAB', 'SQL', 'Assembly'] },
+  { group: 'ML & data', items: ['PyTorch', 'XGBoost', 'LoRA', 'Vision-language models', 'RAG', 'Vector databases', 'Computer vision', 'NLP'] },
+  { group: 'Systems & web', items: ['FastAPI', 'React', 'React Native', 'Node.js', 'Three.js', 'Supabase', 'MongoDB', 'REST APIs'] },
+  { group: 'Practice', items: ['Git', 'Linux', 'GitHub Actions', 'CI/CD', 'Agile', 'pytest'] },
 ]
 
 export const PRINCIPLES = [
   {
     title: 'Find the better method',
-    body: 'Before working harder, I look for a smarter approach. Understanding the problem comes before optimizing it.',
+    body: 'My first Rubik’s cube solve took two minutes. Five hundred solves later it took forty seconds, and my hands were no faster. The algorithm changed. I look for that change before I look for more effort.',
   },
   {
     title: 'Back it with evidence',
-    body: 'A result is not finished until it can be measured and checked. I would rather prove something works than assume it does.',
+    body: 'A result is not finished until it can be measured. DC Router got a 100-week evaluation; MemeQA got adversarial filtering. I would rather prove it than assume it.',
   },
   {
-    title: 'Design for the end user',
-    body: 'Software is only as good as the experience of the person using it. Clarity and accessibility come before extra features.',
+    title: 'Design for the person using it',
+    body: 'A model nobody can use is a notebook. Clarity and accessibility come before features.',
   },
   {
-    title: 'Deliver on deadline',
-    body: 'Scope early, ship a working version, then improve it. Progress you can show beats a perfect plan.',
+    title: 'Ship on the deadline',
+    body: 'Scope early, ship something that works, then improve it. Four hackathon and challenge awards say this works.',
   },
 ]
-
-export const EXPERIENCE: ExperienceItem[] = [
-  {
-    role: 'AI Software Engineer, GDSC',
-    org: 'Google Developer Student Clubs, UT Dallas',
-    period: 'Sep 2026 - Present',
-    summary:
-      'AskUTD is a RAG chatbot for questions that only the university can answer: course requirements, degree plans, registrar policies, and academic regulations. Every answer has to point at the page it came from.',
-    bullets: [
-      'Developing AskUTD across 200+ official PDF documents, returning answers on course requirements, degree plans, registrar policies, and academic regulations with exact page citations.',
-      'Implementing a hybrid retrieval pipeline that combines BM25 keyword search with dense vector search (sentence-transformers) and a local BGE cross-encoder reranker.',
-      'Building query decomposition and Self-RAG verification loops, with nightly RAGAS evaluations, to cut hallucinations. The stack is Python, FastAPI, Next.js, and a local Llama 3.1 8B served through Ollama.',
-    ],
-    tech: ['RAG', 'FastAPI', 'Next.js', 'BM25', 'Llama 3.1', 'RAGAS'],
-  },
-  {
-    role: 'Machine Learning Engineer, Artificial Intelligence Society',
-    org: 'Artificial Intelligence Society at UT Dallas',
-    period: 'Sep 2026 - Present',
-    summary:
-      'SkyAlert turns satellite imagery into something a first responder can use: is this area on fire, is it flooded, and where exactly.',
-    bullets: [
-      'Building SkyAlert, a computer vision system that detects wildfires and floods from satellite imagery so first responders get a damage assessment without waiting on a manual review.',
-      'Engineering a two-phase pipeline: a ResNet binary classifier flags affected regions, then a U-Net semantic segmentation model maps the damage at the pixel level.',
-      'Ingesting imagery from NASA FIRMS and the DeepGlobe dataset, computing spectral indices (NDVI, NBR) as features, and serving the result through FastAPI plus an interactive Streamlit and Folium map.',
-    ],
-    tech: ['ResNet', 'U-Net', 'FastAPI', 'Streamlit', 'NASA FIRMS', 'Computer Vision'],
-  },
-  {
-    role: 'Software Engineer, BeyondNeuro',
-    org: 'UTD EPICS, partnered with a nonprofit client',
-    period: 'Aug 2026 - Present',
-    summary:
-      'BeyondNeuro is a cognitive wellness platform for stroke survivors, dementia patients, and the people who care for them. I am the software engineer and project liaison on a UTD EPICS team, turning clinical priorities into a build plan and shipping it.',
-    bullets: [
-      'Architected the platform around interactive cognitive modules, an activity library, local progress tracking, and a progressive web app with an AI avatar, sequenced across a 4-sprint roadmap agreed with the client in biweekly stakeholder syncs.',
-      'Shipping sprint 1 of 4: the first cognitive training modules and the user onboarding flow.',
-      'Designed the system for WCAG accessibility and role-based access so patients, family caregivers, and healthcare providers each see only what they should.',
-    ],
-    tech: ['React', 'PWA', 'Accessibility', 'RBAC', 'AI'],
-  },
-  {
-    role: 'Research Assistant, Computational Neuroscience Lab',
-    org: 'The University of Texas at Dallas, under Dr. Zirong Gu',
-    period: 'Jun 2026 - Aug 2026',
-    summary:
-      'The lab studies how neural activity drives behavior. I restored the analysis pipeline that had stalled, then built the tooling that lets researchers see what each cluster actually is.',
-    bullets: [
-      'Diagnosed and restored a broken MATLAB pipeline implementing affinity propagation clustering over multi-camera behavioral tracking data (3D pose, acceleration, and motion frequency), clearing classification failures that had stalled analysis across 12+ experimental sessions.',
-      'Engineered a Python video-processing pipeline from scratch to auto-generate per-cluster outputs from clustered sensor data, so researchers can visually audit what each statistical cluster corresponds to in the raw footage.',
-      'Redesigned the cluster-to-frame mapping algorithm, cutting processing time 60% on recording sessions longer than 10 hours.',
-    ],
-    tech: ['MATLAB', 'Python', 'Affinity Propagation', '3D Pose', 'Video Processing'],
-  },
-  {
-    role: 'AI/ML Security Software Engineer',
-    org: 'The University of Texas at Dallas, R.I.D.E. Program',
-    period: 'Sep 2025 - Dec 2025',
-    summary:
-      'Research on using machine learning for software security: systems that harden code against reverse engineering, and the measurements that say whether the hardening worked.',
-    bullets: [
-      'Developed Python-based AI/ML systems to design and apply code obfuscation techniques, making software harder to reverse engineer and exploit.',
-      'Built benchmarking frameworks and trained models to measure obfuscation strength, surface vulnerabilities, and test resistance to automated deobfuscation tools across different threat scenarios.',
-    ],
-    tech: ['Python', 'Machine Learning', 'Code Obfuscation', 'Security Benchmarking'],
-  },
-  {
-    role: 'Machine Learning Researcher',
-    org: 'The University of Texas at Dallas, under Dr. Vincent Ng',
-    period: 'Jun 2024 - Sep 2024',
-    summary:
-      'Multimodal NLP research on machine understanding of memes, culminating in MemeQA, published at ACL 2025.',
-    bullets: [
-      'Built a multimodal system combining computer vision and NLP, using vision-language models to classify sentiment, intent, and context in memes.',
-      'Engineered a data curation pipeline and LoRA fine-tuning workflow with adversarial filtering across a 9,000+ question dataset, so the benchmark measures understanding rather than shortcut heuristics.',
-      'Co-authored MemeQA: Holistic Evaluation for Meme Understanding, published in the Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL 2025).',
-    ],
-    tech: ['PyTorch', 'Vision-Language Models', 'LoRA', 'Dataset Engineering', 'NLP'],
-  },
-]
-
-export const EDUCATION = {
-  school: 'University of Texas at Dallas',
-  degree: 'B.S. Computer Science',
-  grad: 'Expected December 2027',
-  gpa: '4.0 / 4.0',
-  coursework: [
-    'Data Structures & Algorithms',
-    'Computer Architecture',
-    'Systems Programming (C, POSIX threads/sockets)',
-  ],
-}
-
-export const LINKS = {
-  github: 'https://github.com/nandhanalahari',
-  linkedin: 'https://www.linkedin.com/in/nandhan-alahari/',
-  devpost: 'https://devpost.com/nandhu-alahari',
-  email: 'mailto:alahari.nandhan@gmail.com',
-}

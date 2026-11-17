@@ -1,124 +1,172 @@
-import { useReveal } from '../hooks'
-import { EDUCATION, LINKS, SKILL_GROUPS, iconUrl } from '../data'
+import { useRef } from 'react'
+import { Link } from 'react-router-dom'
+import { LINKS, PROFILE, SKILLS } from '../data'
+import { useCosmosStop } from '../cosmos/journey'
+import { useTitle } from '../hooks'
+import './profile.css'
 
 const FACTS = [
-  { label: 'Location', value: 'Dallas, Texas' },
-  { label: 'School', value: EDUCATION.school },
-  { label: 'Degree', value: `${EDUCATION.degree}, ${EDUCATION.grad}` },
-  { label: 'GPA', value: EDUCATION.gpa },
-  { label: 'Focus', value: 'Machine Learning, Cognitive Tools, NLP' },
+  { term: 'Based in', value: PROFILE.location },
+  { term: 'School', value: PROFILE.school },
+  { term: 'Degree', value: `${PROFILE.degree}, ${PROFILE.grad}` },
+  { term: 'GPA', value: PROFILE.gpa, data: true },
+]
+
+const ELSEWHERE = [
+  { label: 'LinkedIn', href: LINKS.linkedin },
+  { label: 'GitHub', href: LINKS.github },
+  { label: 'Devpost', href: LINKS.devpost },
 ]
 
 export default function About() {
-  const ref = useReveal<HTMLElement>()
+  useTitle('About')
+  const heroRef = useRef<HTMLElement>(null)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  // The galaxy holds beside the headline, then recedes behind the story.
+  useCosmosStop(heroRef, 'galaxy', 'right', 0.15)
+  useCosmosStop(bodyRef, 'galaxy', 'right', 0.8)
+
   return (
-    <section className="page container" ref={ref}>
-      <p className="page__crumb mono fade-up">~/about</p>
-      <h1 className="page__title fade-up">About Me</h1>
-      <p className="page__lede fade-up">
-        Computer science student, researcher, and habitual puzzle-taker-aparter.
-      </p>
-
-      <div className="about fade-up">
-        <div className="about__photo-wrap">
-          <img
-            src="/nandhan.png"
-            alt="Nandhan Alahari"
-            className="about__photo"
-            loading="lazy"
-          />
-          <div className="about__facts">
-            {FACTS.map((f) => (
-              <div className="about__fact" key={f.label}>
-                <span className="about__fact-label mono">{f.label}</span>
-                <span className="about__fact-value">{f.value}</span>
-              </div>
-            ))}
-          </div>
+    <div className="profile">
+      <header className="phero" ref={heroRef}>
+        <div className="container phero__inner">
+          <h1 className="phero__title about-hero__title">Better algorithms, not faster hands.</h1>
+          <p className="phero__lede">
+            I’m Nandhan, a computer science student at UT Dallas who builds machine learning systems and the software
+            that makes them usable. A Rubik’s cube is the reason why.
+          </p>
         </div>
+      </header>
 
-        <div className="about__text">
-          <h2 className="about__heading">The cube</h2>
-          <p>
-            I grew up in Celina, Texas, and the thing that rewired my brain was
-            a Rubik's cube. My first solve took over two minutes of fumbling
-            through memorized steps. Five hundred solves later I was under
-            forty seconds, and the cube had not changed at all. The only thing
-            that changed was the algorithm. That idea, that a better approach
-            beats faster fingers, is why I do computer science. Years later I
-            learned the formal name for it: time complexity. The cube taught
-            it to me first.
-          </p>
-
-          <h2 className="about__heading">The work</h2>
-          <p>
-            Today I study computer science at UT Dallas with a 4.0, graduating
-            December 2027. On the UTD EPICS team I am the software engineer for
-            BeyondNeuro, a cognitive wellness platform for stroke survivors,
-            dementia patients, and caregivers.             Last summer, in Dr. Zirong Gu's
-            lab, I restored a stalled MATLAB clustering pipeline and built the
-            video tooling that lets researchers see what each behavioral cluster
-            actually is. The fall before that I spent a semester on ML for
-            software security, obfuscating code and then measuring whether it
-            held. Under Dr. Vincent Ng, I helped build MemeQA, a 9,000-question
-            benchmark published at ACL 2025. This semester I am also building
-            AskUTD with GDSC and SkyAlert with the AI Society.
-          </p>
-
-          <h2 className="about__heading">The builds</h2>
-          <p>
-            NavRisk, a crew-risk model trained on six million flight records,
-            placed 1st out of 50+ teams at the EPPS x American Airlines Data
-            Challenge, most of them graduate and PhD students. Kolana, a wallet
-            you pay with by pointing a camera and speaking, won Best Use of
-            Solana at HackHCC. Nestor, a scenario-driven portfolio rebalancer,
-            finished top 5 at the Goldman Sachs & JSOM Hackathon.
-          </p>
-
-          <h2 className="about__heading">Skills</h2>
-          <div className="skills">
-            {SKILL_GROUPS.map((g) => (
-              <div className="skills__group" key={g.label}>
-                <p className="skills__label">{g.label}</p>
-                <div className="pills">
-                  {g.skills.map((s) => (
-                    <span className="pill" key={s.name}>
-                      {s.icon && (
-                        <img
-                          src={iconUrl(s.icon)}
-                          alt=""
-                          loading="lazy"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none'
-                          }}
-                        />
-                      )}
-                      {s.name}
-                    </span>
-                  ))}
-                </div>
+      <div className="pbody" ref={bodyRef}>
+      <div className="container about">
+        <aside className="about__aside" aria-label="Quick facts">
+          <figure className="portrait">
+            <img
+              src="/nandhan.png"
+              width={800}
+              height={800}
+              decoding="async"
+              alt="Portrait of Nandhan Alahari"
+            />
+          </figure>
+          <dl className="facts">
+            {FACTS.map((f) => (
+              <div className="facts__row" key={f.term}>
+                <dt>{f.term}</dt>
+                <dd className={f.data ? 'facts__gpa data' : undefined}>{f.value}</dd>
               </div>
             ))}
-          </div>
+          </dl>
+        </aside>
 
-          <h2 className="about__heading">Say hi</h2>
-          <p>
-            I'm always up for talking research, systems, startups, or
-            speedcubing. My inbox is open.
-          </p>
-          <div className="hero__links">
-            <a href={LINKS.email} className="chip-link">
-              Email
-            </a>
-            <a href={LINKS.linkedin} target="_blank" rel="noreferrer" className="chip-link">
-              LinkedIn
-            </a>
-            <a href={LINKS.github} target="_blank" rel="noreferrer" className="chip-link">
-              GitHub
-            </a>
-          </div>
+        <div className="about__main">
+          <article className="story">
+            <section className="asec" aria-labelledby="story-cube">
+              <h2 id="story-cube">The cube</h2>
+              <div className="asec__body">
+              <p>
+                I grew up in Celina, Texas, and a Rubik’s cube rewired how I think. My first solve took over two
+                minutes of fumbling through memorized steps. Five hundred solves later I was under forty seconds,
+                and the cube hadn’t changed at all. Only the algorithm had. Years later I learned the formal name
+                for that idea, time complexity, but the cube taught it to me first. It’s still why I do computer
+                science.
+              </p>
+              </div>
+            </section>
+
+            <section className="asec" aria-labelledby="story-work">
+              <h2 id="story-work">The work</h2>
+              <div className="asec__body">
+              <p>
+                I study computer science at UT Dallas with a 4.0, graduating December 2027, and spend most of my
+                time where research meets shipping software. Right now I’m the software engineer and project liaison
+                for BeyondNeuro on UTD EPICS, a cognitive wellness platform for stroke survivors, dementia patients,
+                and caregivers. I’m also building AskUTD with Google Developer Groups and SkyAlert with the AI
+                Society.
+              </p>
+              <p>
+                This past summer, in Dr. Zirong Gu’s lab, I restored a stalled MATLAB clustering pipeline and built
+                the video tooling that shows researchers what each behavioral cluster actually is. Before that came
+                a semester of machine learning for software security, and MemeQA, a 9,000-question benchmark built
+                in Dr. Vincent Ng’s lab and published at ACL&nbsp;2025.{' '}
+                <Link className="link" to="/experience">
+                  The full timeline
+                </Link>{' '}
+                has the details.
+              </p>
+              </div>
+            </section>
+
+            <section className="asec" aria-labelledby="story-builds">
+              <h2 id="story-builds">The builds</h2>
+              <div className="asec__body">
+              <p>
+                <Link className="link" to="/work/dc-router">
+                  DC Router
+                </Link>{' '}
+                took 2nd place in the NMC² track at HackUTD 2026. It schedules GPU data-center maintenance priced in
+                real H100 market dollars: a thermal simulator checks every slot, and a Nemotron agent turns plain
+                requests into plans. The result runs <strong>42.8% cheaper</strong> than as-soon-as-possible
+                scheduling, with <strong>zero overheats</strong>.
+              </p>
+              <p>
+                <Link className="link" to="/work/navrisk">
+                  NavRisk
+                </Link>
+                , a crew-risk model trained on six million flight records, placed 1st of 50+ teams at the EPPS ×
+                American Airlines Data Challenge, against mostly graduate and PhD students.{' '}
+                <Link className="link" to="/work/kolana">
+                  Kolana
+                </Link>
+                , a wallet you pay with by pointing a camera and speaking, won Best Use of Solana at HackHCC.{' '}
+                <Link className="link" to="/work/nestor">
+                  Nestor
+                </Link>
+                , a scenario-driven portfolio rebalancer, finished top 5 at the Goldman Sachs & JSOM Hackathon.
+              </p>
+              </div>
+            </section>
+          </article>
+
+          <section className="asec toolkit" aria-labelledby="toolkit-title">
+            <h2 id="toolkit-title">Toolkit</h2>
+            <div className="toolkit__groups">
+              {SKILLS.map((g) => (
+                <div className="toolkit__group" key={g.group}>
+                  <h3>{g.group}</h3>
+                  <ul className="tags">
+                    {g.items.map((s) => (
+                      <li className="tag" key={s}>
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="asec hi" aria-labelledby="hi-title">
+            <h2 id="hi-title">Say hi</h2>
+            <div className="asec__body">
+            <p>I’m always up for talking research, systems, startups, or speedcubing. My inbox is open.</p>
+            <div className="hi__links">
+              <a className="btn btn--primary" href={LINKS.email}>
+                {LINKS.emailAddress}
+              </a>
+              {ELSEWHERE.map((l) => (
+                <a className="btn" key={l.label} href={l.href} target="_blank" rel="noreferrer">
+                  {l.label}
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+              ))}
+            </div>
+            </div>
+          </section>
         </div>
       </div>
-    </section>
+      </div>
+    </div>
   )
 }

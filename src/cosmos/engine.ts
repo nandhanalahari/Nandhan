@@ -43,7 +43,9 @@ export function startCosmos(container: HTMLElement, opts: CosmosOptions = {}): (
   container.appendChild(canvas)
 
   const camera = new PerspectiveCamera(FOV, 1, 0.05, 1e6)
-  const universe = buildUniverse(lowPower, maxPoint)
+  // Rendering into half-float targets needs an extension that some Safari/iOS builds lack.
+  const floatRT = renderer.extensions.has('EXT_color_buffer_half_float') || renderer.extensions.has('EXT_color_buffer_float')
+  const universe = buildUniverse(lowPower, maxPoint, floatRT)
 
   /* ---------------- sizing ---------------- */
   const view: View = { aspect: 1, narrow: false }

@@ -28,6 +28,7 @@ import {
   TorusGeometry,
   Vector2,
   Vector3,
+  UnsignedByteType,
   WebGLRenderTarget,
   ZeroFactor,
   type IUniform,
@@ -89,7 +90,8 @@ const smooth = (a: number, b: number, x: number) => {
   return k * k * (3 - 2 * k)
 }
 
-export function buildUniverse(lowPower: boolean, maxPoint: number): Universe {
+/** `floatRT`: the browser can render to half-float targets (EXT_color_buffer_*); otherwise fall back to 8-bit. */
+export function buildUniverse(lowPower: boolean, maxPoint: number, floatRT = true): Universe {
   const scene = new Scene()
   const trash: { dispose(): void }[] = []
   const keep = <T extends { dispose(): void }>(x: T) => {
@@ -175,7 +177,7 @@ export function buildUniverse(lowPower: boolean, maxPoint: number): Universe {
   const volMat = keep(new ShaderMaterial({ vertexShader: GX.fullVert, fragmentShader: GX.galaxyVolFrag, uniforms: volU, depthTest: false, depthWrite: false }))
   add(volScene, new Mesh(tri, volMat))
   const volScale = lowPower ? 0.55 : 0.85
-  const volRT = keep(new WebGLRenderTarget(1, 1, { type: HalfFloatType, format: RGBAFormat, depthBuffer: false, magFilter: LinearFilter, minFilter: LinearFilter }))
+  const volRT = keep(new WebGLRenderTarget(1, 1, { type: floatRT ? HalfFloatType : UnsignedByteType, format: RGBAFormat, depthBuffer: false, magFilter: LinearFilter, minFilter: LinearFilter }))
   const compU = { uTex: { value: volRT.texture }, uExposure: { value: 1 }, uSoft: { value: 0 }, uTexel: { value: new Vector2(1, 1) } }
   add(scene, new Mesh(tri, light(GX.fullVert, GX.galaxyCompFrag, compU, { depthTest: false })), -10)
 

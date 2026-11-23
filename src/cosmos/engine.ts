@@ -1,4 +1,4 @@
-import { PerspectiveCamera, Vector3, WebGLRenderer } from 'three'
+import { Color, PerspectiveCamera, Vector3, WebGLRenderer } from 'three'
 import { cosmos, type CosmosFrame } from './journey'
 import { FOV, blendPose, copyPose, makePose, pathPose, type Pose, type View } from './layout'
 import { buildUniverse, type Env } from './universe'
@@ -30,13 +30,17 @@ export function startCosmos(container: HTMLElement, opts: CosmosOptions = {}): (
 
   let renderer: WebGLRenderer
   try {
-    renderer = new WebGLRenderer({ antialias: !lowPower, alpha: true, premultipliedAlpha: true, powerPreference: 'high-performance' })
+    // Opaque canvas on purpose. The scene is additive light written with alpha 0;
+    // on a transparent canvas the macOS compositor treats those pixels as fully
+    // transparent and the galaxy disappears in real Chrome windows.
+    renderer = new WebGLRenderer({ antialias: !lowPower, alpha: false, powerPreference: 'high-performance' })
   } catch {
     return () => {}
   }
   const gl = renderer.getContext()
   const maxPoint = (gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE) as Float32Array)[1] || 64
-  renderer.setClearColor(0x000000, 0)
+  // the page background (--void, #060a14), so the canvas edge matches the CSS around it
+  renderer.setClearColor(new Color(0x060a14), 1)
   renderer.autoClear = true
   const canvas = renderer.domElement
   canvas.className = 'cosmos__canvas'

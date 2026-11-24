@@ -25,7 +25,6 @@ export interface CosmosOptions {
 
 export function startCosmos(container: HTMLElement, opts: CosmosOptions = {}): () => void {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
   const lowPower = window.innerWidth < 768 || (navigator.hardwareConcurrency || 8) <= 4
 
   let renderer: WebGLRenderer
@@ -33,7 +32,9 @@ export function startCosmos(container: HTMLElement, opts: CosmosOptions = {}): (
     // Opaque canvas on purpose. The scene is additive light written with alpha 0;
     // on a transparent canvas the macOS compositor treats those pixels as fully
     // transparent and the galaxy disappears in real Chrome windows.
-    renderer = new WebGLRenderer({ antialias: !lowPower, alpha: false, powerPreference: 'high-performance' })
+    // No MSAA: at Retina sizes it is the single most expensive thing on the GPU, and the
+    // bodies are anti-aliased analytically in their shaders anyway.
+    renderer = new WebGLRenderer({ antialias: false, alpha: false, powerPreference: 'high-performance' })
   } catch {
     return () => {}
   }
@@ -56,12 +57,16 @@ export function startCosmos(container: HTMLElement, opts: CosmosOptions = {}): (
   let W = 1
   let H = 1
   let dpr = 1
+  // Render below the screen's density: the scene is soft light, and pixel count is
+  // what costs. `quality` drops further on machines that can't hold the frame rate.
+  const DPR_CAP = 1.25
+  let quality = 1
   const resize = () => {
     W = Math.max(1, container.clientWidth)
     H = Math.max(1, container.clientHeight)
     view.aspect = W / H
     view.narrow = W < 900
-    dpr = Math.min(window.devicePixelRatio || 1, view.narrow ? 1.5 : 1.75)
+    dpr = Math.max(0.6, Math.min(window.devicePixelRatio || 1, DPR_CAP) * quality)
     renderer.setPixelRatio(dpr)
     renderer.setSize(W, H, false)
     camera.aspect = view.aspect
@@ -103,13 +108,26 @@ export function startCosmos(container: HTMLElement, opts: CosmosOptions = {}): (
   const offFrame = cosmos.subscribe(onFrame)
   onFrame()
 
-  /* ---------------- pointer parallax ---------------- */
-  const pointer = { x: 0, y: 0, sx: 0, sy: 0 }
-  const onPointer = (e: PointerEvent) => {
-    pointer.x = (e.clientX / W) * 2 - 1
-    pointer.y = (e.clientY / H) * 2 - 1
+  /* ---------------- adaptive resolution ---------------- */
+  // Average frame interval; if a machine can't keep ~45 fps, render fewer pixels.
+  let frameEma = 1 / 60
+  let slowFor = 0
+  let fastFor = 0
+  const adapt = (dt: number) => {
+    if (dt <= 0 || dt > 0.25) return
+    frameEma += (dt - frameEma) * 0.08
+    slowFor = frameEma > 1 / 45 ? slowFor + dt : 0
+    fastFor = frameEma < 1 / 57 ? fastFor + dt : 0
+    if (slowFor > 0.8 && quality > 0.6) {
+      quality = Math.max(0.6, quality - 0.15)
+      slowFor = 0
+      resize()
+    } else if (fastFor > 5 && quality < 1) {
+      quality = Math.min(1, quality + 0.1)
+      fastFor = 0
+      resize()
+    }
   }
-  if (fine && !reduced) window.addEventListener('pointermove', onPointer, { passive: true })
 
   /* ---------------- env ---------------- */
   const env: Env = {
@@ -135,8 +153,8 @@ export function startCosmos(container: HTMLElement, opts: CosmosOptions = {}): (
     camera.updateProjectionMatrix()
     // principal-point shift: where the optical axis lands on screen (keeps bodies undistorted)
     const m = camera.projectionMatrix.elements
-    m[8] = -p.sx + pointer.sx * 0.015
-    m[9] = -p.sy - pointer.sy * 0.015
+    m[8] = -p.sx
+    m[9] = -p.sy
     camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
     camera.updateMatrixWorld()
   }
@@ -189,8 +207,7 @@ export function startCosmos(container: HTMLElement, opts: CosmosOptions = {}): (
       warp = Math.pow(1 - clamp01(arriveT * 1.6), 2.2)
     }
 
-    pointer.sx += (pointer.x - pointer.sx) * (1 - Math.exp(-dt * 3))
-    pointer.sy += (pointer.y - pointer.sy) * (1 - Math.exp(-dt * 3))
+    if (!reduced && arriveT >= 1) adapt(dt)
     applyPose(pose, fovKick)
 
     // dim: CSS opacity on the canvas, eased
@@ -270,7 +287,6 @@ export function startCosmos(container: HTMLElement, opts: CosmosOptions = {}): (
     offKick()
     ro.disconnect()
     document.removeEventListener('visibilitychange', onVis)
-    window.removeEventListener('pointermove', onPointer)
     canvas.removeEventListener('webglcontextlost', onLost)
     universe.dispose()
     renderer.dispose()

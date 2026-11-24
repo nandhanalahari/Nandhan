@@ -317,3 +317,12 @@ p {
 .app--booting .hero * {
   animation-play-state: paused !important;
 }
+
+/* Performance: a live backdrop blur re-runs on every frame when it sits over the
+   animated cosmos canvas. Glass surfaces use a denser fill (--glass) instead. */
+*,
+*::before,
+*::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}

@@ -176,7 +176,7 @@ export function buildUniverse(lowPower: boolean, maxPoint: number, floatRT = tru
   const volScene = new Scene()
   const volMat = keep(new ShaderMaterial({ vertexShader: GX.fullVert, fragmentShader: GX.galaxyVolFrag, uniforms: volU, depthTest: false, depthWrite: false }))
   add(volScene, new Mesh(tri, volMat))
-  const volScale = lowPower ? 0.55 : 0.85
+  const volScale = lowPower ? 0.5 : 0.65
   const volRT = keep(new WebGLRenderTarget(1, 1, { type: floatRT ? HalfFloatType : UnsignedByteType, format: RGBAFormat, depthBuffer: false, magFilter: LinearFilter, minFilter: LinearFilter }))
   const compU = { uTex: { value: volRT.texture }, uExposure: { value: 1 }, uSoft: { value: 0 }, uTexel: { value: new Vector2(1, 1) } }
   add(scene, new Mesh(tri, light(GX.fullVert, GX.galaxyCompFrag, compU, { depthTest: false })), -10)
